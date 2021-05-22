@@ -1,20 +1,30 @@
-import vk_api
+import socket
+import ssl
+import re
 
-def get_user_friends(api_vk, user_id):
-        friends = api_vk.friends.get(user_id=user_id, fields='nickname')
-        friends_count = friends['count']
-        print(f"Всего друзей {friends_count}")
-        for friend in friends['items']:
-            try:
-                print(f"{friend['first_name']} {friend['last_name']}")
-            except:
-                print("Input incorrect token")
 
-def start(token):
-    target_id = int(input("Введите id пользователя: "))
-    api_vk = vk_api.VkApi(token=token).get_api()
-    get_user_friends(api_vk, target_id)
+def request(socket, request) :
+    socket.send((request + '\n').encode())
+    recv_data = socket.recv(65535)
+    return recv_data
 
-if __name__ == '__main__':
-    token = input("Введите ваш токен VK: ")
-    start(token)
+
+def qet(token: str, host: str, user_id: str):
+    return \
+        f"""GET /method/friends.get?user_id={user_id}&fields=nickname&access_token={token}&v=5.131 HTTP/1.1\nHost: {host}\nAccept: */*\n\n"""
+
+token = "0e5aa0e68d095988843d5edea7b242b2195ff44f14631288fdd0ffe587b8592a2d7412a0d13ad404549e1"
+user_id = "261696240"
+host = "api.vk.com"
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as api:
+    api.connect((host, 443))
+    api = ssl.wrap_socket(api)
+    print(qet(token, host, user_id))
+    req = request(api, qet(token, host, user_id))
+    friends = api.recv(65535).decode()
+    f = friends.split("\"")
+    r = re.compile("[а-яА-Я]+")
+    russian = [w for w in filter(r.match, f)]
+    for i in range(0, len(russian), 2):
+        print(russian[i] + " " + russian[i + 1])
