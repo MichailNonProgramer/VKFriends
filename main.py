@@ -13,8 +13,8 @@ def qet(token: str, host: str, user_id: str):
     return \
         f"""GET /method/friends.get?user_id={user_id}&fields=nickname&access_token={token}&v=5.131 HTTP/1.1\nHost: {host}\nAccept: */*\n\n"""
 
-token = "0e5aa0e68d095988843d5edea7b242b2195ff44f14631288fdd0ffe587b8592a2d7412a0d13ad404549e1"
-user_id = "261696240"
+token = ""
+user_id = ""
 host = "api.vk.com"
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as api:
